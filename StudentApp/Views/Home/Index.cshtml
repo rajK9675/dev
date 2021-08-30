@@ -1,0 +1,161 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+    select{
+        width:100%;
+    }
+</style>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#StudentTable').jtable({
+            title: 'Student Detail',
+            defaultSorting: 'FirstName ASC',
+            openChildAsAccordion: true,
+            actions: {
+                listAction: '/Home/GetStudent',
+                createAction: '/Home/Create',
+                updateAction: '/Home/Edit',
+                deleteAction: '/Home/Delete'
+            },
+            fields: {
+                ID: {
+                    key: true,
+                    list: false
+                },
+                //CHILD TABLE DEFINITION FOR "PHONE NUMBERS"
+                Phones: {
+                    title: '',
+                    width: '5%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (studentData) {
+                        //Create an image that will be used to open child table
+                        var $img = $('<img src="/Content/images/Arrow-1.jpeg" style="height: 25px;width: auto;"   title="Edit phone numbers" />');
+                        //Open child table when user clicks the image
+                        var fiter = $("#fiter").val();
+                        var FilterBy = $("#FilterBy").val();
+                        $img.click(function () {
+                            $('#StudentTable').jtable('openChildTable',
+                                $img.closest('tr'),
+                                {
+                                    title: studentData.record.FirstName + " " + studentData.record.LastName,
+                                    actions: {
+                                        listAction: '/Home/GetStudentmarks?ID=' + studentData.record.ID + "&filter=" + fiter + "&FilterBy=" + FilterBy,
+                                        deleteAction: '/Home/DeleteMarks',
+                                        updateAction: '/Home/EditMarks',
+                                        createAction: '/Home/AddMarks'
+                                    },
+                                    fields: {
+                                        ID: {
+                                            type: 'hidden',
+                                            defaultValue: studentData.record.ID
+                                        },
+                                        StudentSubjectMarksID : {
+                                            key: true,
+                                            create: false,
+                                            edit: false,
+                                            list: false
+                                        },
+                                        SubjectID: {
+                                            title: 'Subject',
+                                            options: '/Home/GetSubject',
+                                            list: false,
+                                            width: '15%'
+                                        },
+                                        SubjectName: {
+                                            title: 'Subject',
+                                            width: '15%',
+                                            edit: false,
+                                            create:false
+                                        },
+                                        Marks: {
+                                            title: 'Mark',
+                                            width: '15%'
+                                        },
+                                    }
+                                }, function (data) { //opened handler
+                                    data.childTable.jtable('load');
+                                });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
+                
+                FirstName: {
+                    title: 'FirstName',
+                    width: '15%'
+                },
+                LastName: {
+                    title: 'LastName',
+                    width: '15%'
+                },
+                ClassName: {
+                    title: 'Class',
+                    width: '15%',
+                    create: false,
+                    edit: false,
+                },
+                StudentClassID: {
+                    title: 'Class',
+                    options: '/Home/GetStudentClass',
+                    list: false,
+                    width: '15%'
+                },
+                SubjectID: {
+                    title: 'Subject',
+                    options: '/Home/GetSubject',
+                    list: false,
+                    width: '15%'
+                },
+                Marks: {
+                    title: 'Mark',
+                    width: '15%',
+                    list:false,edit:false
+                },
+
+            }
+        });
+                
+        $("#Find").click(function () {
+            var fiter = $("#fiter").val();
+            var FilterBy = $("#FilterBy").val();
+            $('#StudentTable').jtable('load', {
+                filter: fiter,
+                FilterBy: FilterBy
+            });
+        })
+        $("#Find").click();
+    }); 
+    
+</script>
+
+
+<div class="row">
+    <div class="col-sm-4">
+        <input type="text" id="fiter" class="form-control"/>
+    </div>
+    <div class="col-sm-4">
+        <select id="FilterBy" class="form-control">
+            <option value="FirstName">FirstName</option>
+            <option value="LastName">LastName</option>
+            <option value="Class">Class</option>
+            <option value="Subject">Subject</option>
+            <option value="Marks">Marks</option>
+        </select>
+    </div>
+    <div class="col-sm-1">
+        <button type="button" id="Find">Find</button>
+    </div>
+</div>
+<div id="StudentTable">
+
+</div>
+
+
+
